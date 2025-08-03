@@ -67,8 +67,6 @@ screanshots:
 
 [ссылка на payment_events](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/payment_events.png)
 
-[ссылка на ](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/topics.png)
-
 [ссылка на user_events](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/user_events.png)
 
 [ссылка на postman_test](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/postman_test.png)
