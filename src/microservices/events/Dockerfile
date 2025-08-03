@@ -2,13 +2,16 @@ FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
 
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
 
-RUN go mod tidy && go build -o events-service
+RUN CGO_ENABLED=0 GOOS=linux go build -o events-service .
 
 FROM alpine:latest
 
-WORKDIR /root/
+WORKDIR /app
 
 COPY --from=builder /app/events-service .
 
