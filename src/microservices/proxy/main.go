@@ -6,17 +6,11 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
-	"strconv"
-	// "strings"
-	"math/rand"
-	"time"
 )
 
 var (
-	monolithURL        *url.URL
-	moviesServiceURL   *url.URL
-	gradualMigration   bool
-	migrationPercent   int
+	monolithURL      *url.URL
+	moviesServiceURL *url.URL
 )
 
 func init() {
@@ -30,20 +24,21 @@ func init() {
 	if err != nil {
 		log.Fatalf("Invalid MOVIES_SERVICE_URL: %v", err)
 	}
-
-	gradualMigration = os.Getenv("GRADUAL_MIGRATION") == "true"
-
-	migrationPercent, err = strconv.Atoi(os.Getenv("MOVIES_MIGRATION_PERCENT"))
-	if err != nil {
-		migrationPercent = 0
-	}
-
-	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {
 	http.HandleFunc("/api/movies", moviesHandler)
-	http.HandleFunc("/api/movies/", moviesHandler) // для любых подмаршрутов
+	http.HandleFunc("/api/movies/", moviesHandler)
+
+	http.HandleFunc("/api/users", monolithHandler)
+	http.HandleFunc("/api/users/", monolithHandler)
+
+	http.HandleFunc("/api/payments", monolithHandler)
+	http.HandleFunc("/api/payments/", monolithHandler)
+
+	http.HandleFunc("/api/subscriptions", monolithHandler)
+	http.HandleFunc("/api/subscriptions/", monolithHandler)
+
 	http.HandleFunc("/health", healthHandler)
 
 	port := os.Getenv("PORT")
@@ -59,22 +54,17 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"status": true}`))
 }
 
-// Перенаправляет запрос либо на монолит, либо на movies-service
 func moviesHandler(w http.ResponseWriter, r *http.Request) {
-	target := monolithURL
-	if gradualMigration {
-		// С вероятностью migrationPercent отправляем на movies
-		if rand.Intn(100) < migrationPercent {
-			target = moviesServiceURL
-		}
-	}
+	proxyRequest(w, r, moviesServiceURL)
+}
 
+func monolithHandler(w http.ResponseWriter, r *http.Request) {
+	proxyRequest(w, r, monolithURL)
+}
+
+func proxyRequest(w http.ResponseWriter, r *http.Request, target *url.URL) {
 	proxy := httputil.NewSingleHostReverseProxy(target)
-
-	// Подменяем хост в запросе, чтобы целевой сервис корректно его принял
 	r.Host = target.Host
-
 	log.Printf("Proxying request %s %s to %s", r.Method, r.URL.Path, target)
-
 	proxy.ServeHTTP(w, r)
 }
