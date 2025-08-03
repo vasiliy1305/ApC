@@ -1,0 +1,45 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "End User", "Watches movies via Web, Mobile, SmartTV")
+
+System_Boundary(cinema, "CinemaAbyss Platform") {
+    
+    Container(api_gateway, "API Gateway", "Go", "Entry point for all clients. Implements Strangler Fig pattern for gradual migration.")
+    
+    Container(movies_service, "Movies Metadata Service", "Go", "Handles movie metadata: genres, actors, ratings, favorites.")
+    Container(users_service, "Users Service", "Go", "Authentication, authorization and user profiles.")
+    Container(subscriptions_service, "Subscriptions Service", "Go", "Subscription management, plan activation.")
+    Container(payments_service, "Payments Service", "Go", "Handles payments, billing, transaction history.")
+    Container(discounts_service, "Discounts Service", "Go", "Manages promo codes, discounts and loyalty programs.")
+    Container(events_service, "Events Service", "Go + Kafka", "Publishes and processes events for analytics and audit.")
+    Container(recommendation_api, "Recommendation API Adapter", "Go", "Integrates with external recommendation system.")
+    
+    Container(monolith, "Legacy Monolith", "Go", "Handles unrefactored functionality, will be gradually strangled.")
+    
+    ContainerDb(postgres_movies, "Movies DB", "PostgreSQL", "Stores movies metadata.")
+    ContainerDb(postgres_users, "Users DB", "PostgreSQL", "Stores users data.")
+    ContainerDb(postgres_payments, "Payments DB", "PostgreSQL", "Stores transactions and billing data.")
+    ContainerDb(postgres_discounts, "Discounts DB", "PostgreSQL", "Stores discount rules and promo codes.")
+    
+    ContainerQueue(kafka, "Kafka", "Kafka", "Event bus for asynchronous communication and data pipelines.")
+}
+
+Rel(user, api_gateway, "Uses", "HTTPS")
+Rel(api_gateway, movies_service, "API calls", "HTTP/REST")
+Rel(api_gateway, users_service, "API calls", "HTTP/REST")
+Rel(api_gateway, subscriptions_service, "API calls", "HTTP/REST")
+Rel(api_gateway, payments_service, "API calls", "HTTP/REST")
+Rel(api_gateway, discounts_service, "API calls", "HTTP/REST")
+Rel(api_gateway, events_service, "Publishes events", "Kafka")
+Rel(api_gateway, monolith, "Routes remaining calls", "HTTP/REST")
+
+Rel(movies_service, postgres_movies, "Reads/Writes", "SQL")
+Rel(users_service, postgres_users, "Reads/Writes", "SQL")
+Rel(payments_service, postgres_payments, "Reads/Writes", "SQL")
+Rel(discounts_service, postgres_discounts, "Reads/Writes", "SQL")
+
+Rel(events_service, kafka, "Publishes/Consumes events", "Kafka")
+Rel(recommendation_api, monolith, "Communicates with", "HTTP/REST")
+
+@enduml
