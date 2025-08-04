@@ -2,15 +2,19 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strconv"
+	"time"
 )
 
 var (
 	monolithURL      *url.URL
 	moviesServiceURL *url.URL
+	migrationPercent int
 )
 
 func init() {
@@ -24,21 +28,21 @@ func init() {
 	if err != nil {
 		log.Fatalf("Invalid MOVIES_SERVICE_URL: %v", err)
 	}
+
+	migrationPercentStr := os.Getenv("MOVIES_MIGRATION_PERCENT")
+	migrationPercent, err = strconv.Atoi(migrationPercentStr)
+	if err != nil || migrationPercent < 0 || migrationPercent > 100 {
+		log.Printf("Invalid MOVIES_MIGRATION_PERCENT: %v, defaulting to 0", err)
+		migrationPercent = 0
+	}
+
+	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {
 	http.HandleFunc("/api/movies", moviesHandler)
 	http.HandleFunc("/api/movies/", moviesHandler)
-
-	http.HandleFunc("/api/users", monolithHandler)
-	http.HandleFunc("/api/users/", monolithHandler)
-
-	http.HandleFunc("/api/payments", monolithHandler)
-	http.HandleFunc("/api/payments/", monolithHandler)
-
-	http.HandleFunc("/api/subscriptions", monolithHandler)
-	http.HandleFunc("/api/subscriptions/", monolithHandler)
-
+	http.HandleFunc("/api/", monolithHandler) // <-- Добавляем
 	http.HandleFunc("/health", healthHandler)
 
 	port := os.Getenv("PORT")
@@ -46,8 +50,16 @@ func main() {
 		port = "8000"
 	}
 
-	log.Printf("Proxy service started on port %s", port)
+	log.Printf("Proxy service started on port %s with %d%% migration to Movies Service", port, migrationPercent)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+
+func monolithHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Routing to MONOLITH: %s", monolithURL.String())
+
+	proxy := httputil.NewSingleHostReverseProxy(monolithURL)
+	r.Host = monolithURL.Host
+	proxy.ServeHTTP(w, r)
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -55,16 +67,17 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func moviesHandler(w http.ResponseWriter, r *http.Request) {
-	proxyRequest(w, r, moviesServiceURL)
-}
+	var target *url.URL
 
-func monolithHandler(w http.ResponseWriter, r *http.Request) {
-	proxyRequest(w, r, monolithURL)
-}
+	if rand.Intn(100) < migrationPercent {
+		target = moviesServiceURL
+		log.Printf("Routing to MOVIES_SERVICE: %s", target.String())
+	} else {
+		target = monolithURL
+		log.Printf("Routing to MONOLITH: %s", target.String())
+	}
 
-func proxyRequest(w http.ResponseWriter, r *http.Request, target *url.URL) {
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	r.Host = target.Host
-	log.Printf("Proxying request %s %s to %s", r.Method, r.URL.Path, target)
 	proxy.ServeHTTP(w, r)
 }
