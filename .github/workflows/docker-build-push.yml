@@ -10,7 +10,6 @@ on:
       - 'src/microservices/movies/**'
       - 'src/monolith/**'
       - '.github/workflows/docker-build-push.yml'
-
   release:
     types: [published]
 
@@ -27,6 +26,70 @@ jobs:
     permissions:
       contents: read
       packages: write
+    services:
+      postgres:
+        image: postgres:14
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: afc_db
+      zookeeper:
+        image: wurstmeister/zookeeper:latest
+        ports:
+          - 2181:2181
+      kafka:
+        image: wurstmeister/kafka:2.13-2.7.0
+        ports:
+          - 9092:9092
+        env:
+          KAFKA_ZOOKEEPER_CONNECT: localhost:2181
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+          KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      monolith:
+        image: ${{ env.REGISTRY }}/${{ env.MONOLITH_IMAGE_NAME }}:latest
+        ports:
+          - 8080:8080
+        options: >-
+          --health-cmd="curl -f http://localhost:8080/health || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      movies-service:
+        image: ${{ env.REGISTRY }}/${{ env.MOVIES_SERVICE_IMAGE_NAME }}:latest
+        ports:
+          - 8081:8081
+        options: >-
+          --health-cmd="curl -f http://localhost:8081/api/movies/health || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      events-service:
+        image: ${{ env.REGISTRY }}/${{ env.EVENTS_SERVICE_IMAGE_NAME }}:latest
+        ports:
+          - 8082:8082
+        options: >-
+          --health-cmd="curl -f http://localhost:8082/api/events/health || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      proxy-service:
+        image: ${{ env.REGISTRY }}/${{ env.PROXY_SERVICE_IMAGE_NAME }}:latest
+        ports:
+          - 8000:8000
+        options: >-
+          --health-cmd="curl -f http://localhost:8000/health || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: Checkout repository
@@ -86,7 +149,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-
       - name: Extract metadata (tags, labels) for Events Service
         id: meta-events
         uses: docker/metadata-action@v4
@@ -131,17 +193,11 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Install Docker Compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose version    
+      - name: Wait for services to start
+        run: sleep 90
 
-
-      - name: Run API tests (docker-compose up + newman)
+      - name: Run API tests
         run: |
-          docker-compose -f docker-compose.yml up -d
-          sleep 60  
           cd tests/postman
           npm install
           npm run test:local
@@ -150,7 +206,3 @@ jobs:
           MOVIES_SERVICE_URL: http://localhost:8081
           EVENTS_SERVICE_URL: http://localhost:8082
           PROXY_SERVICE_URL: http://localhost:8000
-
-
-
-      
