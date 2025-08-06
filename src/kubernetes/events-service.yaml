@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: events-service
-        image: ghcr.io/vasiliy1305/ApC/events-service:latest
+        image: ghcr.io/vasiliy1305/apc/events-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8082
