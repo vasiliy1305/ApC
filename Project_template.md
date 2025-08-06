@@ -293,6 +293,9 @@ zookeeper-0   1/1     Running   0          4m1s
   Часть тестов с health-чек упадет, но создание событий отработает.
   Откройте логи event-service и сделайте скриншот обработки событий
 
+[ссылка на postman_test kubernetes](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/postman_test_kubernets.png)
+
+
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
