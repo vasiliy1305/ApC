@@ -300,6 +300,10 @@ zookeeper-0   1/1     Running   0          4m1s
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
 
+[ссылка](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/curl_1.png)
+
+
+
 ## Задание 4
 Для простоты дальнейшего обновления и развертывания вам как архитектуру необходимо так же реализовать helm-чарты для прокси-сервиса и проверить работу 
 
