@@ -209,6 +209,8 @@ cat .docker/config.json | base64
   NAME         READY   STATUS    
   postgres-0   1/1     Running   
 
+  Done
+
   4. Разверните Kafka:
   ```bash
   kubectl apply -f src/kubernetes/kafka/kafka.yaml
@@ -218,6 +220,14 @@ cat .docker/config.json | base64
   ```bash
   kubectl -n cinemaabyss logs имя_пода (например - kafka-0)
   ```
+
+  - kubectl -n cinemaabyss get pods
+NAME          READY   STATUS    RESTARTS   AGE
+kafka-0       1/1     Running   0          4m
+postgres-0    1/1     Running   0          6m6s
+zookeeper-0   1/1     Running   0          4m1s
+
+
 
   5. Разверните монолит:
   ```bash
