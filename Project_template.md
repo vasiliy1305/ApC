@@ -5,7 +5,7 @@
 1. Спроектируйте to be архитектуру КиноБездны, разделив всю систему на отдельные домены и организовав интеграционное взаимодействие и единую точку вызова сервисов.
 Результат представьте в виде контейнерной диаграммы в нотации С4.
 Добавьте ссылку на файл в этот шаблон
-[ссылка на файл](ссылка)
+[ссылка на Container.puml](https://github.com/vasiliy1305/ApC/blob/cinema/schemas/diagrams/container/Container.puml)
 
 
 ## Задание 2
@@ -58,6 +58,18 @@
 
 Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
 Приложите скриншот тестов и скриншот состояния топиков Kafka http://localhost:8090 
+
+screanshots:
+
+[ссылка на topics](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/topics.png)
+
+[ссылка на movie_events](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/movie_events.png)
+
+[ссылка на payment_events](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/payment_events.png)
+
+[ссылка на user_events](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/user_events.png)
+
+[ссылка на postman_test](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/postman_test.png)
 
 
 ## Задание 3
@@ -121,7 +133,7 @@ jobs:
  spec:
       containers:
       - name: events-service
-        image: ghcr.io/ваш логин/имя репозитория/events-service:latest
+        image: ghcr.io/vasiliy1305/ApC/events-service:latest
 ```
 3. Добавьте в секрет src/kubernetes/dockerconfigsecret.yaml в поле
 ```bash
@@ -197,6 +209,8 @@ cat .docker/config.json | base64
   NAME         READY   STATUS    
   postgres-0   1/1     Running   
 
+  Done
+
   4. Разверните Kafka:
   ```bash
   kubectl apply -f src/kubernetes/kafka/kafka.yaml
@@ -206,6 +220,14 @@ cat .docker/config.json | base64
   ```bash
   kubectl -n cinemaabyss logs имя_пода (например - kafka-0)
   ```
+
+  - kubectl -n cinemaabyss get pods
+NAME          READY   STATUS    RESTARTS   AGE
+kafka-0       1/1     Running   0          4m
+postgres-0    1/1     Running   0          6m6s
+zookeeper-0   1/1     Running   0          4m1s
+
+
 
   5. Разверните монолит:
   ```bash

@@ -154,3 +154,8 @@ go.work
 
 # Postman tests reports
 tests/postman/reports/
+
+
+
+kubectl
+minikube-linux-amd64

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  cinema-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: cinemaabyss
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  cinema-monolith:
+    build: .
+    depends_on:
+      - cinema-db
+    environment:
+      DB_CONNECTION_STRING: "postgres://postgres:postgres@cinema-db:5432/cinemaabyss?sslmode=disable"
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

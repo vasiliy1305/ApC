@@ -1,4 +1,4 @@
-module github.com/cinemaabyss/microservices/movies
+module github.com/cinemaabyss/microservices/events
 
 go 1.23
 
