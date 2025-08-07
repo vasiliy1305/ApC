@@ -74,7 +74,7 @@ proxyService:
 moviesService:
   enabled: true
   image:
-    repository: gghcr.io/vasiliy1305/apc/movies-service
+    repository: ghcr.io/vasiliy1305/apc/movies-service
     tag: latest
     pullPolicy: Always
   replicas: 1
