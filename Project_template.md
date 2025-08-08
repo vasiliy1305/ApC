@@ -378,8 +378,8 @@ minikube tunnel
 https://cinemaabyss.example.com/api/movies
 и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
 
-[развертывание helm]()
-[вывод curl]()
+[развертывание helm](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/helm_2.png)
+[вывод curl](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/Curl_2.png)
 
 
 # Задание 5
