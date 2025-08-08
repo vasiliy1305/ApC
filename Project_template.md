@@ -396,13 +396,13 @@ helm install istio-base istio/base -n istio-system --set defaultRevision=default
 helm install istio-ingressgateway istio/gateway -n istio-system
 helm install istiod istio/istiod -n istio-system --wait
 
-helm install cinemaabyss .\src\kubernetes\helm --namespace cinemaabyss --create-namespace
+helm install cinemaabyss ./src/kubernetes/helm --namespace cinemaabyss --create-namespace
 
 kubectl label namespace cinemaabyss istio-injection=enabled --overwrite
 
 kubectl get namespace -L istio-injection
 
-kubectl apply -f .\src\kubernetes\circuit-breaker-config.yaml -n cinemaabyss
+kubectl apply -f ./src/kubernetes/circuit-breaker-config.yaml -n cinemaabyss  ??где он
 
 ```
 
@@ -423,6 +423,10 @@ kubectl exec -n cinemaabyss $FORTIO_POD -c fortio -- fortio load -c 50 -qps 0 -n
 
 ```bash
 kubectl exec -n cinemaabyss fortio-deploy-b6757cbbb-7c9qg  -c fortio -- fortio load -c 50 -qps 0 -n 500 -loglevel Warning http://movies-service:8081/api/movies
+
+
+FORTIO_POD=$(kubectl get pod -n cinemaabyss -l app=fortio -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n cinemaabyss "$FORTIO_POD"  -c fortio -- fortio load -c 50 -qps 0 -n 500 -loglevel Warning http://movies-service:8081/api/movies
 ```
 
 Вывод будет типа такого
@@ -437,7 +441,16 @@ Code 503 : 399 (79.8 %)
 Можно еще проверить статистику
 
 ```bash
+
+
 kubectl exec -n cinemaabyss fortio-deploy-b6757cbbb-7c9qg -c istio-proxy -- pilot-agent request GET stats | grep movies-service | grep pending
+
+
+----
+FORTIO_POD=$(kubectl get pod -n cinemaabyss -l app=fortio -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n cinemaabyss "$FORTIO_POD" -c istio-proxy -- pilot-agent request GET stats | grep movies-service | grep pending
+
+
 ```
 
 И там смотрим 
@@ -456,3 +469,8 @@ kubectl delete namespace istio-system
 kubectl delete all --all -n cinemaabyss
 kubectl delete namespace cinemaabyss
 ```
+[ссылка на команды терминала]()
+
+[ссылка на команды терминала]()
+
+[ссылка на команды терминала]()
