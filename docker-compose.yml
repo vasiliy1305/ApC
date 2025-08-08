@@ -9,6 +9,7 @@ services:
       POSTGRES_DB: cinemaabyss
     ports:
       - "5432:5432"
+    restart: unless-stopped
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./src/database/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -26,6 +27,7 @@ services:
     container_name: cinemaabyss-zookeeper
     ports:
       - "2181:2181"
+    restart: unless-stopped
     networks:
       - cinemaabyss-network
 
@@ -37,6 +39,7 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
+    restart: unless-stopped
     environment:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
@@ -58,6 +61,7 @@ services:
       - postgres
     ports:
       - "8080:8080"
+    restart: unless-stopped
     environment:
       PORT: 8080
       DB_CONNECTION_STRING: postgres://postgres:postgres_password@postgres:5432/cinemaabyss?sslmode=disable
@@ -74,6 +78,7 @@ services:
       - postgres
     ports:
       - "8081:8081"
+    restart: unless-stopped
     environment:
       PORT: 8081
       DB_CONNECTION_STRING: postgres://postgres:postgres_password@postgres:5432/cinemaabyss?sslmode=disable
@@ -91,6 +96,7 @@ services:
       - kafka
     ports:
       - "8082:8082"
+    restart: unless-stopped
     environment:
       PORT: 8082
       KAFKA_BROKERS: kafka:9092
@@ -109,6 +115,7 @@ services:
       - events-service
     ports:
       - "8000:8000"
+    restart: unless-stopped
     environment:
       PORT: 8000
       MONOLITH_URL: http://monolith:8080
@@ -127,6 +134,7 @@ services:
       - kafka
     ports:
       - "8090:8080"
+    restart: unless-stopped
     environment:
       KAFKA_CLUSTERS_0_NAME: cinemaabyss
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
