@@ -1,24 +1,31 @@
-kubectl apply -f src/kubernetes/namespace.yaml
-kubectl apply -f src/kubernetes/configmap.yaml
-kubectl apply -f src/kubernetes/secret.yaml
-kubectl apply -f src/kubernetes/dockerconfigsecret.yaml
-kubectl apply -f src/kubernetes/postgres-init-configmap.yaml
-kubectl apply -f src/kubernetes/postgres.yaml
-kubectl -n cinemaabyss get pod
-kubectl apply -f src/kubernetes/kafka/kafka.yaml
-kubectl -n cinemaabyss logs kafka-0
-kubectl apply -f src/kubernetes/monolith.yaml
-kubectl apply -f src/kubernetes/movies-service.yaml
-kubectl apply -f src/kubernetes/events-service.yaml
-kubectl apply -f src/kubernetes/proxy-service.yaml
-kubectl -n cinemaabyss get pod
-minikube addons enable ingress
-kubectl apply -f src/kubernetes/ingress.yaml
 
-  curl -H "Accept: application/vnd.github.v3+json" \
-     -H "Authorization: Bearer dmFzaWxpeTEzMDU6Z2hwX1lPMkl2cTh2eXU3Z2lpazVmcFRKbU9Rcnh1MXRZMTFLZ3Rwdw==" \
-     https://ghcr.io/v2/vasiliy1305/apc/proxy-service/tags/list
 
-kubectl -n cinemaabyss delete pod --all
+  kubectl apply -f src/kubernetes/namespace.yaml
+
+  kubectl apply -f src/kubernetes/configmap.yaml
+  kubectl apply -f src/kubernetes/secret.yaml
+  kubectl apply -f src/kubernetes/dockerconfigsecret.yaml
+  kubectl apply -f src/kubernetes/postgres-init-configmap.yaml
+
+  kubectl apply -f src/kubernetes/postgres.yaml
+
+  kubectl -n cinemaabyss get pod
+
+  kubectl apply -f src/kubernetes/kafka/kafka.yaml
+
+  kubectl -n cinemaabyss logs kafka-0
+
+  kubectl apply -f src/kubernetes/monolith.yaml
+
+  kubectl apply -f src/kubernetes/movies-service.yaml
+  kubectl apply -f src/kubernetes/events-service.yaml
+
+  kubectl apply -f src/kubernetes/proxy-service.yaml
+
+  kubectl -n cinemaabyss get pod
+
+  minikube addons enable ingress
+
+  kubectl apply -f src/kubernetes/ingress.yaml
 
 
