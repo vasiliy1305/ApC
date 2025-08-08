@@ -469,8 +469,8 @@ kubectl delete namespace istio-system
 kubectl delete all --all -n cinemaabyss
 kubectl delete namespace cinemaabyss
 ```
-[ссылка на команды терминала]()
+[ссылка на команды терминала](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/terminal_1.png)
 
-[ссылка на команды терминала]()
+[ссылка на команды терминала](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/terminal_2.png)
 
-[ссылка на команды терминала]()
+[ссылка на команды терминала](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/terminal_3.png)
