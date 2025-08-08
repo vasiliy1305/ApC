@@ -293,9 +293,16 @@ zookeeper-0   1/1     Running   0          4m1s
   Часть тестов с health-чек упадет, но создание событий отработает.
   Откройте логи event-service и сделайте скриншот обработки событий
 
+[ссылка на postman_test kubernetes](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/postman_test_kubernets.png)
+
+
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
+
+[ссылка](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/curl_1.png)
+
+не совсем понятно какой именно вывод (скриншот вывода event-service)
 
 ## Задание 4
 Для простоты дальнейшего обновления и развертывания вам как архитектуру необходимо так же реализовать helm-чарты для прокси-сервиса и проверить работу 
@@ -371,6 +378,11 @@ minikube tunnel
 https://cinemaabyss.example.com/api/movies
 и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
 
+[развертывание helm](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/helm_2.png)
+
+
+[вывод curl](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/Curl_2.png)
+
 
 # Задание 5
 Компания планирует активно развиваться и для повышения надежности, безопасности, реализации сетевых паттернов типа Circuit Breaker и канареечного деплоя вам как архитектору необходимо развернуть istio и настроить circuit breaker для monolith и movies сервисов.
@@ -384,13 +396,13 @@ helm install istio-base istio/base -n istio-system --set defaultRevision=default
 helm install istio-ingressgateway istio/gateway -n istio-system
 helm install istiod istio/istiod -n istio-system --wait
 
-helm install cinemaabyss .\src\kubernetes\helm --namespace cinemaabyss --create-namespace
+helm install cinemaabyss ./src/kubernetes/helm --namespace cinemaabyss --create-namespace
 
 kubectl label namespace cinemaabyss istio-injection=enabled --overwrite
 
 kubectl get namespace -L istio-injection
 
-kubectl apply -f .\src\kubernetes\circuit-breaker-config.yaml -n cinemaabyss
+kubectl apply -f ./src/kubernetes/circuit-breaker-config.yaml -n cinemaabyss  ??где он
 
 ```
 
@@ -411,6 +423,10 @@ kubectl exec -n cinemaabyss $FORTIO_POD -c fortio -- fortio load -c 50 -qps 0 -n
 
 ```bash
 kubectl exec -n cinemaabyss fortio-deploy-b6757cbbb-7c9qg  -c fortio -- fortio load -c 50 -qps 0 -n 500 -loglevel Warning http://movies-service:8081/api/movies
+
+
+FORTIO_POD=$(kubectl get pod -n cinemaabyss -l app=fortio -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n cinemaabyss "$FORTIO_POD"  -c fortio -- fortio load -c 50 -qps 0 -n 500 -loglevel Warning http://movies-service:8081/api/movies
 ```
 
 Вывод будет типа такого
@@ -425,7 +441,16 @@ Code 503 : 399 (79.8 %)
 Можно еще проверить статистику
 
 ```bash
+
+
 kubectl exec -n cinemaabyss fortio-deploy-b6757cbbb-7c9qg -c istio-proxy -- pilot-agent request GET stats | grep movies-service | grep pending
+
+
+----
+FORTIO_POD=$(kubectl get pod -n cinemaabyss -l app=fortio -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n cinemaabyss "$FORTIO_POD" -c istio-proxy -- pilot-agent request GET stats | grep movies-service | grep pending
+
+
 ```
 
 И там смотрим 
@@ -444,3 +469,8 @@ kubectl delete namespace istio-system
 kubectl delete all --all -n cinemaabyss
 kubectl delete namespace cinemaabyss
 ```
+[ссылка на команды терминала](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/terminal_1.png)
+
+[ссылка на команды терминала](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/terminal_2.png)
+
+[ссылка на команды терминала](https://github.com/vasiliy1305/ApC/blob/cinema/screenshots/terminal_3.png)

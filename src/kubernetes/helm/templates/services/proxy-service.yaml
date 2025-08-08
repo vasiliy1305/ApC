@@ -32,11 +32,20 @@ spec:
         env:
         - name: PORT
           value: "{{ .Values.proxyService.service.targetPort }}"
-        envFrom:
-        - configMapRef:
-            name: cinemaabyss-config
-        - secretRef:
-            name: cinemaabyss-secrets
+        env:
+        - name: PORT
+          value: "{{ .Values.proxyService.service.targetPort }}"
+        - name: MONOLITH_URL
+          value: "http://monolith:{{ .Values.monolith.service.port }}"
+        - name: MOVIES_SERVICE_URL
+          value: "http://movies-service:{{ .Values.moviesService.service.port }}"
+        - name: EVENTS_SERVICE_URL
+          value: "http://events-service:{{ .Values.eventsService.service.port }}"
+        - name: MOVIES_MIGRATION_PERCENT
+          value: "{{ .Values.config.moviesMigrationPercent }}"
+        - name: GRADUAL_MIGRATION
+          value: "{{ .Values.config.gradualMigration }}"
+
         resources:
           {{- toYaml .Values.proxyService.resources | nindent 10 }}
         readinessProbe:
